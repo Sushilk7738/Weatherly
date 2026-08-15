@@ -8,7 +8,7 @@ def get_weather(city):
     url= "https://api.weatherapi.com/v1/current.json"
 
     params = {"key":API_KEY, "q": city}
-
+    
     try:
         response = requests.get(
             url,

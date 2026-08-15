@@ -6,7 +6,14 @@ from .serializers import RegisterSerializer
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.permissions import IsAuthenticated
 from .services import get_weather
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.middleware.csrf import get_token
+from django.http import JsonResponse
 
+
+@ensure_csrf_cookie
+def csrf_token(request):
+    return JsonResponse({"csrfToken": get_token(request)})
 
 
 class RegisterAPIView(APIView):
