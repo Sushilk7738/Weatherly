@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_t$dy^4jro#a-rz@y#0sh#dv@7s9c2=*2d*yf+7&!7x(jgz_ob'
+SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -56,9 +56,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "https://weatherly-frontend.onrender.com",
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -150,6 +150,7 @@ MAILERS = {
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
+    "https://weatherly-frontend.onrender.com",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
