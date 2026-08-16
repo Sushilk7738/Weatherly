@@ -1,10 +1,14 @@
-import React, { useEffect } from 'react'
-import { checkSession, getCsrfToken, logoutUser } from '../services/api';
+import React, { useEffect, useState } from 'react';
+import { checkSession, getCsrfToken, getWeather, logoutUser } from '../services/api';
 import { useNavigate } from 'react-router-dom';
-
+import { toast } from 'react-toastify';
 
 const Dashboard = () => {
     const navigate = useNavigate();
+    const [weather, setWeather] = useState(null);
+    const [city, setCity] = useState('')
+    const [loading, setLoading] = useState(false)
+
 
     useEffect(() => {
         checkSession().then((response) => {
@@ -20,6 +24,38 @@ const Dashboard = () => {
         await logoutUser(csrfToken)
         navigate('/login')
     }
+
+    const handleSearch = async () => {
+        if (!city.trim()){
+            toast.error("Please enter a city")
+            return
+        }
+
+        setLoading(true)
+
+        try {
+            const response = await getWeather(city)
+            setWeather(response.data)
+        } catch (error) {
+            toast.error('Unable to fetch weather')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+
+    const getWeatherIcon = (condition) => {
+        const value = condition?.toLowerCase()
+
+        if (value?.includes('rain')) return '🌧️'
+        if (value?.includes('sunny')) return '☀️'
+        if (value?.includes('cloud')) return '☁️'
+        if (value?.includes('clear')) return '🌤️'
+
+        return '🌤️'
+
+    }
+    
     
     return (
         <div className='min-h-screen flex flex-col bg-sky-50'>
@@ -43,45 +79,59 @@ const Dashboard = () => {
         <div className='flex flex-col sm:flex-row gap-3'>
         <input
             type='text'
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
             placeholder='Enter city or village' 
             className='flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400'
         />
 
-        <button className='px-6 py-3 rounded-lg  bg-blue-500 transition duration-200 font-semibold hover:bg-blue-600 text-white'>
-            Search
+        <button 
+            onClick={handleSearch}
+            disabled= {loading}
+            className='px-6 py-3 rounded-lg  bg-blue-500 transition duration-200 font-semibold hover:bg-blue-600 text-white'
+        >
+            {loading ? 'Searching...' : 'Search'}
         </button>
         </div>
 
         <div className='mt-8 p-4 sm:p-6 rounded-2xl bg-white shadow-md  animate__animated animate__fadeInUp w-full'>
-        <p className='text-sm text-gray-500'>
+        <p className='text-sm font-medium text-gray-500'>
             Current weather
         </p>
         
-        <h2 className='text-2xl font-bold'>📍 Mumbai</h2>
+        <h2 className='text-2xl font-bold'>📍{city}</h2>
         
         <div className="mt-6 text-center">
             <div 
-            className='mt-4 text-5xl animate__animated animate__bounce'
-            style={{ "--animate-duration": "2s"}}
+                className='mt-4 text-5xl animate__animated animate__pulse animate__infinite'
+                style={{ '--animate-duration': '2s'}}
             >
-            🌧️
+            {getWeatherIcon(weather?.condition)}
             </div>
-            <p className="text-5xl font-bold">28°C</p>
-            <p className="text-lg text-gray-500 mt-1">Light rain shower</p>
+            <p className="text-5xl font-bold">{weather?.temperature}°C</p>
+            <p className="text-lg text-gray-500 mt-1">
+                {weather?.condition}
+            </p>
         </div>
         
         <div className='mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4'>
             <div className='p-4 rounded-lg bg-gray-50 text-center'>
             <p className='text-sm text-gray-500'>Feels Like</p>
-            <p className='text-xl font-semibold'>31.5°C</p>
+            <p className='text-xl font-semibold'>
+                {weather?.feels_like}°C
+            </p>
             </div>
             <div className='p-4 rounded-lg bg-gray-50 text-center'>
             <p className='text-sm text-gray-500'>Humidity</p>
-            <p className='text-xl font-semibold'>77%</p>
+            <p className='text-xl font-semibold'>
+                {weather?.humidity}%
+            </p>
             </div>
             <div className='p-4 rounded-lg bg-gray-50 text-center'>
             <p className='text-sm text-gray-500'>Wind</p>
-            <p className='text-xl font-semibold'>24.4 km/h</p>
+            <p className='text-xl font-semibold'>
+                {weather?.wind_speed} km/h
+            </p>
             </div>
         
         </div>  

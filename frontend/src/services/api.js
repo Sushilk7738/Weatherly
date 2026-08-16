@@ -24,6 +24,14 @@ export const checkSession = ()=> {
     return api.get('/session-check/')
 }
 
+export const getWeather = (city) => {
+    return api.get('/weather/', {
+        params: { city },
+    })
+}
+
+
+
 export const logoutUser = (csrfToken)=> {
     return api.post(
         '/logout/',
